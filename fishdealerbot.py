@@ -5,7 +5,13 @@ from fbchat import ThreadType
 from getpass import getpass
 import random
 class FishBot(fbchat.Client):
-    suits = [u'\U00002660', u'\U00002663', u'\U00002665', u'\U00002666']
+    suits_emoji = [u'\U00002660', u'\U00002663', u'\U00002665', u'\U00002666']
+    suits_text = ['Spades', 'Clubs', 'Hearts', 'Diamonds']
+
+    #default
+    suits = suits_text
+
+
     nums = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"]
     gcname = "FishGame"
     gcuid = "3271435542909370" #testing thread id: "3126833007361899", group thread id:"3271435542909370"
@@ -49,6 +55,12 @@ class FishBot(fbchat.Client):
                 # print(players)
                 print(self.playernames)
                 self.sendMessage("Players have been entered", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
+            elif('!format emoji' in message_object.text):
+                suits = suits_emoji
+                self.send("Cards will format as emojis", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
+            elif('!format text' in message_object.text):
+                suits = suits_text
+                self.send("Cards will format as text", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
             elif("!captains" in message_object.text):
                 self.pickednames = set()
                 self.picking = True
