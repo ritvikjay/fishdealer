@@ -4,6 +4,8 @@ from fbchat import Message
 from fbchat import ThreadType
 from getpass import getpass
 import random
+from credentials import CREDENTIALS
+
 class FishBot(fbchat.Client):
     suits_emoji = [u'\U00002660', u'\U00002663', u'\U00002665', u'\U00002666']
     suits_text = ['Spades', 'Clubs', 'Hearts', 'Diamonds']
@@ -16,19 +18,39 @@ class FishBot(fbchat.Client):
     gcname = "FishGame"
     gcuid = "3271435542909370" #testing thread id: "3126833007361899", group thread id:"3271435542909370"
     cards = []
-    cardsdict = {}
+    cardsdict_text = {}
+    cardsdict_emoji = {}
     ind = 0
     numplayer = 0
-    for suit in suits:
+    
+    #dict of player to preference of text or emoji
+    prefs = {}
+
+    
+
+    #formats the two dicts for the type of suits
+    for suit in suits_emoji:
         for num in nums:
-            cardsdict[ind] = num + "-" + suit
+            cardsdict_emoji[ind] = num + "-" + suit
             cards.append(ind)
             ind+=1
-    cardsdict[ind] = u'\U0001F534' + u'\U0001F921'
+    cardsdict_emoji[ind] = u'\U0001F534' + u'\U0001F921'
     cards.append(ind)
     ind+=1
-    cardsdict[ind] = u'\U000026AB' + u'\U0001F921'
+    cardsdict_emoji[ind] = u'\U000026AB' + u'\U0001F921'
     cards.append(ind)
+    
+    ind=0
+    for suit in suits_text:
+        for num in nums:
+            cardsdict_text[ind] = num + "-" + suit
+            ind+=1
+    cardsdict_text[ind] = 'Red Joker'
+    ind+=1
+
+    cardsdict_text[ind] = 'Black Joker'
+
+
     players = []
     playernames = set()
     pickednames = set()
@@ -56,11 +78,13 @@ class FishBot(fbchat.Client):
                 print(self.playernames)
                 self.sendMessage("Players have been entered", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
             elif('!format emoji' in message_object.text):
-                suits = suits_emoji
-                self.send("Cards will format as emojis", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
+                self.prefs[author_id] = 'emoji'
+                # suits = suits_emoji
+                self.sendMessage("Cards will format as emojis for you", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
             elif('!format text' in message_object.text):
-                suits = suits_text
-                self.send("Cards will format as text", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
+                self.prefs[author_id] = 'text'
+                # suits = suits_text
+                self.sendMessage("Cards will format as text for you", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
             elif("!captains" in message_object.text):
                 self.pickednames = set()
                 self.picking = True
@@ -132,9 +156,22 @@ class FishBot(fbchat.Client):
                         handnums.append(self.cards[ind])
                         ind+=1
                     handnums.sort()
+                    
+                    self.player_pref = None
+
+                    if self.players[i].uid in self.prefs:
+                        self.player_pref = self.prefs[self.players[i].uid]
+
+                    if(self.player_pref == 'emoji'):
+                        self.cardsdict = self.cardsdict_emoji
+                    else:
+                        self.cardsdict = self.cardsdict_text
+
                     handstrs = [self.cardsdict[cardnum] for cardnum in handnums]
                     self.hands.append(handstrs)
-                random.shuffle(self.hands)
+
+                #commented this line out bc it gives the emoji formatting someone else then, if you shuffle cards before you should be good
+                #random.shuffle(self.hands)
                 self.sendMessage("Sending out hands ", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
                 for i in range(len(self.players)):
                     # self.send(Message(text="Hello "+self.players[i].name+", here is your hand for fish: "), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
@@ -150,6 +187,6 @@ class FishBot(fbchat.Client):
                     time.sleep(0.1)
                 self.teams = ""
 # username = input("Enter fb username: ")
-password = getpass()
-client = FishBot("ritvikjay9", password)
+# password = getpass()
+client = FishBot(CREDENTIALS['USERNAME'], CREDENTIALS['PASSWORD'])
 client.listen()
