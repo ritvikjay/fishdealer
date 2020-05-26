@@ -16,7 +16,7 @@ class FishBot(fbchat.Client):
 
     nums = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"]
     gcname = "FishGame"
-    gcuid = "3271435542909370" #testing thread id: "3126833007361899", group thread id:"3271435542909370"
+    gcuid = "3126833007361899" #testing thread id: "3126833007361899", group thread id:"3271435542909370"
     cards = []
     cardsdict_text = {}
     cardsdict_emoji = {}
@@ -77,11 +77,11 @@ class FishBot(fbchat.Client):
                 # print(players)
                 print(self.playernames)
                 self.sendMessage("Players have been entered", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
-            elif('!format emoji' in message_object.text):
+            elif('!format_emoji' in message_object.text):
                 self.prefs[author_id] = 'emoji'
                 # suits = suits_emoji
                 self.sendMessage("Cards will format as emojis for you", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
-            elif('!format text' in message_object.text):
+            elif('!format_text' in message_object.text):
                 self.prefs[author_id] = 'text'
                 # suits = suits_text
                 self.sendMessage("Cards will format as text for you", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
@@ -142,25 +142,33 @@ class FishBot(fbchat.Client):
                                 picking = False
                         else:
                             self.sendMessage("Invalid pick :|", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
+                    else:
+                        self.sendMessage("You're not a captain :'(", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
                 else:
                     self.sendMessage("Send !select_teams to start picking process", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
             elif(message_object.text == '!start_game'):
-                ind=0
+
                 if(self.teams==""):
                     random.shuffle(self.players)
-                    self.teams = "Team 1: "+str([self.players[i].name for i in range(0,int(len(self.players)/2))])+" | Team 2: "+str([self.players[i].name for i in range(int(len(self.players)/2),len(self.players))])
+                    self.teams = "Team 1: "+str([self.players[i].name for i in range(0,len(self.players),2)])+" | Team 2: "+str([self.players[i].name for i in range(1,len(self.players),2)])
                     self.send(Message(text=self.teams), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
 
                 self.starting_message = str(random.choice(self.players).name) + " gets the first ask"
                 self.send(Message(text=self.starting_message), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
-
+                ind=0
+                uneven = False
+                handsize = int(len(self.cards)/len(self.players))
+                extracards = len(self.cards)-len(self.players)*handsize
                 for i in range(len(self.players)):
                     handnums = []
-                    for j in range(int(len(self.cards)/len(self.players))):
+                    for j in range(handsize):
                         handnums.append(self.cards[ind])
                         ind+=1
+                    if(extracards):
+                        handnums.append(self.cards[ind])
+                        ind+=1
+                        extracards-=1
                     handnums.sort()
-
                     self.player_pref = None
 
                     if self.players[i].uid in self.prefs:
@@ -178,18 +186,20 @@ class FishBot(fbchat.Client):
                 #random.shuffle(self.hands)
                 self.sendMessage("Sending out hands ", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
                 for i in range(len(self.players)):
-                    # self.send(Message(text="Hello "+self.players[i].name+", here is your hand for fish: "), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
-                    # self.send(Message(text=str(self.hands[i])), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
-                    self.send(Message(text="Hello "+self.players[i].name+", here is your hand for fish: "), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
-                    time.sleep(0.1)
-                    handmsgid = self.send(Message(text=str(self.hands[i])), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
-                    time.sleep(0.1)
-                    if(self.uid!=self.players[i].uid): #delete for everyone but the person who runs the program if they are playing so they can't cheat
-                        self.deleteMessages(handmsgid)
-                        time.sleep(0.1)
-                    self.send(Message(text="Teams have been picked as "+self.teams), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
-                    time.sleep(0.1)
+                    self.send(Message(text="Hello "+self.players[i].name+", here is your hand for fish: "), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
+                    self.send(Message(text=str(self.hands[i])), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
+                    # self.send(Message(text="Hello "+self.players[i].name+", here is your hand for fish: "), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
+                    # time.sleep(0.1)
+                    # handmsgid = self.send(Message(text=str(self.hands[i])), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
+                    # time.sleep(0.1)
+                    # if(self.uid!=self.players[i].uid): #delete for everyone but the person who runs the program if they are playing so they can't cheat
+                    #     self.deleteMessages(handmsgid)
+                    #     time.sleep(0.1)
+                    # self.send(Message(text="Teams have been picked as "+self.teams), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
+                    # time.sleep(0.1)
                 self.teams = ""
+                self.hands = []
+
 # username = input("Enter fb username: ")
 # password = getpass()
 client = FishBot(CREDENTIALS['USERNAME'], CREDENTIALS['PASSWORD'])
