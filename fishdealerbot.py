@@ -150,6 +150,10 @@ class FishBot(fbchat.Client):
                     random.shuffle(self.players)
                     self.teams = "Team 1: "+str([self.players[i].name for i in range(0,int(len(self.players)/2))])+" | Team 2: "+str([self.players[i].name for i in range(int(len(self.players)/2),len(self.players))])
                     self.send(Message(text=self.teams), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
+                
+                self.starting_message = str(random.choice(self.players).name) + " gets the first ask"
+                self.send(Message(text=self.starting_message), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
+
                 for i in range(len(self.players)):
                     handnums = []
                     for j in range(int(len(self.cards)/len(self.players))):
