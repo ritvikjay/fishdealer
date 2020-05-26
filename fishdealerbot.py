@@ -24,6 +24,7 @@ class FishBot(fbchat.Client):
             cardsdict[ind] = num + "-" + suit
             cards.append(ind)
             ind+=1
+    #Add jokers
     cardsdict[ind] = u'\U0001F534' + u'\U0001F921'
     cards.append(ind)
     ind+=1
@@ -55,10 +56,10 @@ class FishBot(fbchat.Client):
                 # print(players)
                 print(self.playernames)
                 self.sendMessage("Players have been entered", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
-            elif('!format emoji' in message_object.text):
+            elif('!format_emoji' in message_object.text):
                 suits = suits_emoji
                 self.send("Cards will format as emojis", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
-            elif('!format text' in message_object.text):
+            elif('!format_text' in message_object.text):
                 suits = suits_text
                 self.send("Cards will format as text", thread_id=self.gcuid, thread_type=ThreadType.GROUP)
             elif("!captains" in message_object.text):
