@@ -171,6 +171,8 @@ class FishBot(fbchat.Client):
                 else:
                     self.sendMessage("Send !select_teams to start picking process", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
             elif(message_object.text == '!start_game'):
+                random.seed(int(time.time()))
+                random.shuffle(self.cards)
                 playersrestructured = []
                 for i in range(len(self.team1)):
                     playersrestructured.append(self.team1[i])
