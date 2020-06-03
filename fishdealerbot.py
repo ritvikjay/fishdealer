@@ -16,7 +16,7 @@ class FishBot(fbchat.Client):
 
     nums = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"]
     gcname = "FishGame"
-    gcuid = "3126833007361899" #testing thread id: "3126833007361899", group thread id:"3271435542909370"
+    gcuid = "3271435542909370" #testing thread id: "3126833007361899", group thread id:"3271435542909370"
     cards = []
     cardsdict_text = {}
     cardsdict_emoji = {}
@@ -214,19 +214,17 @@ class FishBot(fbchat.Client):
                 #random.shuffle(self.hands)
                 self.sendMessage("Sending out hands ", thread_id = self.gcuid, thread_type = ThreadType.GROUP)
                 for i in range(len(self.players)):
-                    self.send(Message(text="Hello "+self.players[i].name+", here is your hand for fish: "), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
-                    self.send(Message(text=str(self.hands[i])), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
-                    # self.send(Message(text="Hello "+self.players[i].name+", here is your hand for fish: "), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
-                    # time.sleep(0.1)
-                    # handmsgid = self.send(Message(text=str(self.hands[i])), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
-                    # time.sleep(0.1)
-                    # if(self.uid!=self.players[i].uid): #delete for everyone but the person who runs the program if they are playing so they can't cheat
-                    #     self.deleteMessages(handmsgid)
-                    #     time.sleep(0.1)
-                    # self.send(Message(text="Teams have been picked as "+self.teams), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
-                    # time.sleep(0.1)
+                    # self.send(Message(text="Hello "+self.players[i].name+", here is your hand for fish: "), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
+                    # self.send(Message(text=str(self.hands[i])), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
+                    self.send(Message(text="Hello "+self.players[i].name+", here is your hand for fish: "), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
+                    handmsgid = self.send(Message(text=str(self.hands[i])), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
+                    if(self.uid!=self.players[i].uid): #delete for everyone but the person who runs the program if they are playing so they can't cheat
+                        self.deleteMessages(handmsgid)
+                    self.send(Message(text="Teams have been picked as "+self.teams), thread_id=self.players[i].uid, thread_type=ThreadType.USER)
                 self.teams = ""
                 self.hands = []
+            elif("!forfeit" in message_object.text):
+                self.send(Message(text="No u :)"), thread_id=self.gcuid, thread_type=ThreadType.GROUP)
 
 # username = input("Enter fb username: ")
 # password = getpass()
